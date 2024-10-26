@@ -1,6 +1,8 @@
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
+using Abstractions;
+using Background;
 using Contracts;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
@@ -9,6 +11,7 @@ using Microsoft.OpenApi.Models;
 using Middlewares;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -142,4 +145,10 @@ void ConfigureServices(IServiceCollection services)
 
     IServiceCollection serviceCollection = services.AddSingleton(sp =>
         sp.GetRequiredService<IOptions<MongoDbSettings>>().Value);
+
+    services.AddHostedService<ApplicationBuild>();
+    services.AddSingleton<MongoDbContext>();
+    services.Configure<ServiceAccountSecret>(builder.Configuration.GetSection("ServiceAccount"));
+
+    services.AddSingleton<IUserService, UserService>();
 }
